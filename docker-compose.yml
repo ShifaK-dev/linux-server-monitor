@@ -1,0 +1,6 @@
+services:
+  monitoring:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: linux-server-monitor
