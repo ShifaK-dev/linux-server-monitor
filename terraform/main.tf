@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-south-1"
+  region = var.aws_region
 }
 
 # ==========================================================
@@ -19,26 +19,26 @@ provider "aws" {
 # ==========================================================
 
 data "aws_vpc" "default" {
-  id = "vpc-0f45c6b3be3474d7e"
+  id = var.vpc_id
 }
 
 data "aws_subnet" "monitoring" {
-  id = "subnet-0aeccfed4b61d4b78"
+  id = var.subnet_id
 }
 
 data "aws_security_group" "monitoring" {
-  id = "sg-0b4f3ffc8d1844106"
+  id = var.security_group_id
 }
 
 data "aws_internet_gateway" "monitoring" {
   filter {
     name   = "attachment.vpc-id"
-    values = ["vpc-0f45c6b3be3474d7e"]
+    values = [var.vpc_id]
   }
 }
 
 data "aws_route_table" "public" {
-  route_table_id = "rtb-098d4805ca7b9c3a4"
+  route_table_id = var.route_table_id
 }
 
 # ==========================================================
@@ -47,25 +47,25 @@ data "aws_route_table" "public" {
 # ==========================================================
 
 resource "aws_instance" "monitoring" {
-  ami                         = "ami-07e5ce642bbc48c0d"
-  instance_type               = "t3.micro"
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
   subnet_id                   = data.aws_subnet.monitoring.id
   vpc_security_group_ids      = [data.aws_security_group.monitoring.id]
-  key_name                    = "tera"
+  key_name                    = var.key_name
   associate_public_ip_address = true
 
   root_block_device {
-    volume_size           = 8
-    volume_type           = "gp3"
+    volume_size           = var.root_volume_size
+    volume_type           = var.root_volume_type
     delete_on_termination = true
 
     tags = {
-      Name = "linux-server-monitor-root"
+      Name = var.root_volume_name
     }
   }
 
   tags = {
-    Name = "linux-server-monitor"
+    Name = var.instance_name
   }
 }
 
