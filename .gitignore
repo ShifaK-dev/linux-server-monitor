@@ -3,3 +3,10 @@ reports/*
 *.log
 *.tmp
 .env
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfplan
+terraform/crash.log
+terraform/crash.*.log
