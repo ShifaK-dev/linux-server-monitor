@@ -46,27 +46,18 @@ data "aws_route_table" "public" {
 # Imported into Terraform
 # ==========================================================
 
-resource "aws_instance" "monitoring" {
-  ami                         = var.ami_id
-  instance_type               = var.instance_type
-  subnet_id                   = data.aws_subnet.monitoring.id
-  vpc_security_group_ids      = [data.aws_security_group.monitoring.id]
-  key_name                    = var.key_name
-  associate_public_ip_address = true
+module "monitoring" {
+  source = "./modules/ec2"
 
-  root_block_device {
-    volume_size           = var.root_volume_size
-    volume_type           = var.root_volume_type
-    delete_on_termination = true
-
-    tags = {
-      Name = var.root_volume_name
-    }
-  }
-
-  tags = {
-    Name = var.instance_name
-  }
+  ami_id            = var.ami_id
+  instance_type     = var.instance_type
+  subnet_id         = data.aws_subnet.monitoring.id
+  security_group_id = data.aws_security_group.monitoring.id
+  key_name          = var.key_name
+  instance_name     = var.instance_name
+  root_volume_name  = var.root_volume_name
+  root_volume_size  = var.root_volume_size
+  root_volume_type  = var.root_volume_type
 }
 
 # ==========================================================
@@ -110,13 +101,17 @@ output "route_table_id" {
 }
 
 output "instance_id" {
-  value = aws_instance.monitoring.id
+  value = module.monitoring.instance_id
 }
 
 output "instance_private_ip" {
-  value = aws_instance.monitoring.private_ip
+  value = module.monitoring.private_ip
 }
 
 output "instance_public_ip" {
-  value = aws_instance.monitoring.public_ip
+  value = module.monitoring.public_ip
+}
+moved {
+  from = aws_instance.monitoring
+  to   = module.monitoring.aws_instance.monitoring
 }
